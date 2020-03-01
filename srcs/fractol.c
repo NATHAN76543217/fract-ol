@@ -2,8 +2,8 @@
 
 int		init_window(t_data *data)
 {
-	data->screen.x = 1000;
-	data->screen.y = 700;
+	data->screen.x = 800;
+	data->screen.y = 800;
 		if (!(data->mlx.ptr = mlx_init()))
 			return (EXIT_FAILURE);
 		if ((data->mlx.win = mlx_new_window(data->mlx.ptr, data->screen.x,

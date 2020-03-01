@@ -3,7 +3,8 @@
 # include "../libmlx/mlx.h"
 # include "../libft/includes/libft.h"
 # include <stdlib.h>
-#include <math.h>
+# include <complex.h>
+# include <math.h>
 
 
 typedef struct	s_mlx

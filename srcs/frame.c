@@ -2,35 +2,36 @@
 
 int draw(t_data *data, t_coord point, int color)
 {
-    *(int *)(data->image.add_image + point.y * data->image.size_line + point.x) = (!color) ? rgb_int(0, 100, 0, 0) : 0;
+    *(int *)(data->image.add_image + (point.y * data->image.size_line) + point.x*sizeof(int)) = (color == 1) ? rgb_int(0, 100, 0, 00) : 0;
     return (0);
 }
 
-int computing(t_data *data, t_f_coord org_coord, t_coord point)
+int computing(t_data *data, t_fcom_coord org_coord, t_coord point)
 {
-    float z;
-    float z0;
+    float complex z;
+    float complex z0;
     int i;
-    t_f_coord coord;
+    t_fcom_coord coord;
     float module;
 
     i = 0;
-    z = org_coord.x + org_coord.y;
+    z = CMPLXF(org_coord.x,  org_coord.y);
     z0 = z;
-    while(i < 15)
+    coord = org_coord;
+    while(i < 20)
     {
-        coord.x = (coord.x*coord.x) - (coord.y*coord.y) + org_coord.x;
-        coord.y = (2*coord.x*coord.y + org_coord.y);
-        z =  coord.x + coord.y;
-        module = sqrtf(coord.x * coord.x + coord.y * coord.y);
-        if (module > 2)
+        // coord.x = (coord.x*coord.x) - (coord.y*coord.y) + org_coord.x;
+        // coord.y = (2*coord.x*coord.y) + org_coord.y  ;
+        z =  z * z + z0;
+        module = (crealf(z) * crealf(z) + cimagf(z) * cimagf(z));
+        if (module >= 4)
         {
             draw(data, point, 1);
-            i = 15;
+            i = 20;
         }
         i++;
     }
-    if (i == 15)
+    if (i == 20)
         draw(data, point, 0);
     return (0);
 }
@@ -38,22 +39,24 @@ int computing(t_data *data, t_f_coord org_coord, t_coord point)
 int frame(t_data *data)
 {
     t_coord point;
-    t_f_coord coord;
-    coord = (t_f_coord){};
-    point = (t_coord){};
-
-    printf("start frame\n");
-    while (point.y < data->screen.y)
+    t_fcom_coord coord;
+    t_f_coord ratio;
+    coord = (t_fcom_coord){.x = 0.0, .y = 0.0};
+    point = (t_coord){.y = 0, .x = 0};
+    ratio.x = 0.01 * ((float)200 / data->screen.x);
+    ratio.y = 0.01 * ((float)200 / data->screen.y);
+    //printf("start frame\n");
+    while (point.x < data->screen.x)
     {
-        coord.y = -1 + (0.001 * point.y);
-        while (point.x < data->screen.x)
+        coord.x = -1.5 +  (ratio.x * point.x);
+        while (point.y < data->screen.y)
         {
-            coord.x = -1.5 * (0.001 * point.x);
+            coord.y = -1 + (ratio.y * point.y);
             computing(data, coord, point);
-            point.x++;
+            point.y++;
         }
-        point.x = 0;
-        point.y++;
+        point.y = 0;
+        point.x++;
     }
     mlx_put_image_to_window(data->mlx.ptr, data->mlx.win, data->image.img, 0, 0);
 
