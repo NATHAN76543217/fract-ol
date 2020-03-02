@@ -2,30 +2,36 @@
 
 int draw(t_data *data, t_coord point, int color)
 {
-    *(int *)(data->image.add_image + (point.y * data->image.size_line) + point.x*sizeof(int)) =
-    (color != 0) ? rgb_int(0, (color * 10 > 256) ? 256 : (color * 10), (color * 3 > 256) ? 256 : (color * 3), (color * 5 > 256) ? 256 : (color * 5)) : 0;
+    int val;
+
+    // val = rgb_int(0, (color * 2 > 256) ? 256 : (color * 2), (color * 3 > 256) ? 256 : (color * 3), (color * 4 > 256) ? 256 : (color * 4));
+    val = rgb_int(0, 200, color * 10,color *5);
+    *(int *)(data->image.add_image + (point.y * data->image.size_line) + point.x*sizeof(int)) = (color != 0) ? val : 0; 
     return (0);
 }
 
-int computing(t_data *data, t_fcom_coord org_coord, t_coord point)
+int computing(t_data *data, t_f_complex z0, t_coord point)
 {
-    float complex z;
-    float complex z0;
+    t_f_complex z;
+    t_f_complex c;
+    
     int i;
-    t_fcom_coord coord;
+
     float module;
-    int nb_iter = 200;
+    int nb_iter = 150;
+    float tmp;
 
     i = 0;
-    z = CMPLXF(org_coord.x,  org_coord.y);
-    z0 = z;
-    coord = org_coord;
+    z = z0;
+    c.re = 0.5;
+    c.im = 0.9;
     while(i < nb_iter)
     {
-        // coord.x = (coord.x*coord.x) - (coord.y*coord.y) + org_coord.x;
-        // coord.y = (2*coord.x*coord.y) + org_coord.y  ;
-        z =  z * z + z0;
-        module = (crealf(z) * crealf(z) + cimagf(z) * cimagf(z));
+        tmp = z.re;
+        // z.re = z.re * z.re - z.im * z.im + c.re;
+        // z.im = 2 * z.im * z.re + c.im;
+       z = add_comp(mult_comp(z, z), c);
+        module = (z.re * z.re + z.im * z.im);
         if (module >= 4)
         {
             draw(data, point, i);
@@ -40,20 +46,20 @@ int computing(t_data *data, t_fcom_coord org_coord, t_coord point)
 
 int frame(t_data *data)
 {
-    t_coord point;
-    t_fcom_coord coord;
-    t_f_coord ratio;
-    coord = (t_fcom_coord){.x = 0.0, .y = 0.0};
+    t_coord     point;
+    t_f_complex coord;
+    t_f_coord   ratio;
+
+    coord = (t_f_complex){.re = 0.0, .im = 0.0};
     point = (t_coord){.y = 0, .x = 0};
-    ratio.x = 0.01 * ((float)200 / data->screen.x);
-    ratio.y = 0.01 * ((float)200 / data->screen.y);
-    //printf("start frame\n");
+    ratio.x = 0.02 * ((float)200 / data->screen.x);
+    ratio.y = 0.02 * ((float)200 / data->screen.y);
     while (point.x < data->screen.x)
     {
-        coord.x = -1.5 +  (ratio.x * point.x);
+        coord.re = -1.5 +  (ratio.x * point.x);
         while (point.y < data->screen.y)
         {
-            coord.y = -1 + (ratio.y * point.y);
+            coord.im = -1 + (ratio.y * point.y);
             computing(data, coord, point);
             point.y++;
         }

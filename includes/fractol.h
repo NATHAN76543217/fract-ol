@@ -3,7 +3,6 @@
 # include "../libmlx/mlx.h"
 # include "../libft/includes/libft.h"
 # include <stdlib.h>
-# include <complex.h>
 # include <math.h>
 
 
