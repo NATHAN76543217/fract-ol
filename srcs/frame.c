@@ -2,7 +2,8 @@
 
 int draw(t_data *data, t_coord point, int color)
 {
-    *(int *)(data->image.add_image + (point.y * data->image.size_line) + point.x*sizeof(int)) = (color == 1) ? rgb_int(0, 100, 0, 00) : 0;
+    *(int *)(data->image.add_image + (point.y * data->image.size_line) + point.x*sizeof(int)) =
+    (color != 0) ? rgb_int(0, (color * 10 > 256) ? 256 : (color * 10), (color * 3 > 256) ? 256 : (color * 3), (color * 5 > 256) ? 256 : (color * 5)) : 0;
     return (0);
 }
 
@@ -13,12 +14,13 @@ int computing(t_data *data, t_fcom_coord org_coord, t_coord point)
     int i;
     t_fcom_coord coord;
     float module;
+    int nb_iter = 200;
 
     i = 0;
     z = CMPLXF(org_coord.x,  org_coord.y);
     z0 = z;
     coord = org_coord;
-    while(i < 20)
+    while(i < nb_iter)
     {
         // coord.x = (coord.x*coord.x) - (coord.y*coord.y) + org_coord.x;
         // coord.y = (2*coord.x*coord.y) + org_coord.y  ;
@@ -26,12 +28,12 @@ int computing(t_data *data, t_fcom_coord org_coord, t_coord point)
         module = (crealf(z) * crealf(z) + cimagf(z) * cimagf(z));
         if (module >= 4)
         {
-            draw(data, point, 1);
-            i = 20;
+            draw(data, point, i);
+            i = nb_iter;
         }
         i++;
     }
-    if (i == 20)
+    if (i == nb_iter)
         draw(data, point, 0);
     return (0);
 }
